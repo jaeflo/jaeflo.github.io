@@ -31,5 +31,3 @@ google_analytics: #
 owner:
   name: jaeflo
   disqus_shortname: jeflo-github-io
-
-theme: jekyll-theme-tactile
