@@ -1,0 +1,34 @@
+title: Storch
+description: "Redcup: An awesome Theme for Jekyll"
+
+url: https://stoerchl.github.io/
+port: 3000
+highlighter: rouge
+
+permalink: /:year/:month/:day/:title.html
+markdown: kramdown
+
+kramdown:
+  hard_wrap: true
+  input:          GFM
+  # https://github.com/jekyll/jekyll/pull/4090
+  syntax_highlighter: rouge
+
+  # Rouge Highlighter in Kramdown › http://kramdown.gettalong.org/syntax_highlighter/rouge.html
+  # span, block element options fall back to global
+  syntax_highlighter_opts:
+    # Rouge Options › https://github.com/jneen/rouge#full-options
+    css_class: 'highlight'
+    #line_numbers: true # bad idea, spans don't need linenos and would inherit this option
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
+
+google_analytics: #
+
+owner:
+  name: Storch
+  disqus_shortname: stoerchl-github-io
+  twitter: stoerchl
