@@ -6,7 +6,9 @@ sites/site*/private/
 sites/site*/public/admin/
 sites/site*/public/setup/
 sites/site*/public/theme/
+_site/*
 textpattern/
 HISTORY.txt
 README.txt
 Gemfile
+Gemfile.lock
