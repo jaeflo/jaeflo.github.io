@@ -1,4 +1,4 @@
-title: Storch
+title: Faebus Blog
 description: "Redcup: An awesome Theme for Jekyll"
 
 url: https://stoerchl.github.io/
@@ -29,6 +29,5 @@ kramdown:
 google_analytics: #
 
 owner:
-  name: Storch
-  disqus_shortname: stoerchl-github-io
-  twitter: stoerchl
+  name: jaeflo
+  disqus_shortname: jeflo-github-io
