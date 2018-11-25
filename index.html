@@ -7,7 +7,7 @@ robots: noindex
 
   <ol class="post-list">
     {% for post in paginator.posts %}
-      <li>
+      <li>        
         <h2 class="post-list__post-title post-title"><a href="{{ site.baseurl }}{{ post.url }}" title="{{ post.title }}">{{ post.title }}</a></h2>
         <p class="excerpt">{{ post.excerpt | strip_html }}&hellip;</p>
         <div class="post-list__meta">
