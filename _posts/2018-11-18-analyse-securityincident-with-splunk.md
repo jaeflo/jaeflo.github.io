@@ -46,14 +46,16 @@ Let's just look for some hints about well known _cms_ in the same traffic I allr
 In the tag dest_header, there are many URL's cointaining _joomla_, so this is likely the correct answer.
 ![Solution q103](/images/splunk/102_1.png)
 
-#### 104-What is the name of the file that defaced the imreallynotbatman.com website?
+<!-- #### 104-What is the name of the file that defaced the imreallynotbatman.com website?
 ##### thoughts
 ##### approach
 ##### result
+
 #### 105-This attack used dynamic DNS to resolve to the malicious IP. What fully qualified domain name (FQDN) is associated with this attack?
 ##### thoughts
 ##### approach
 ##### result
+
 #### 106-What IP address has Po1s0n1vy tied to domains that are pre-staged to attack Wayne Enterprises?
 ##### thoughts
 ##### approach
@@ -61,7 +63,8 @@ In the tag dest_header, there are many URL's cointaining _joomla_, so this is li
 #### 107-Based on the data gathered from this attack and common open source intelligence sources for domain names; what is the email address that is most likely associated with Po1s0n1vy APT group?
 ##### thoughts
 ##### approach
-##### result
+##### result -->
+
 #### <a name="108"></a>108-What IP address is likely attempting a brute force password attack against imreallynotbatman.com?
 ##### thoughts
 To answer this question, I have to keep in mind that the brute force attack was driven against a web-applikation. So, there will for sure be quite a lot of http-traffic between the attacker and the web-server.
@@ -71,7 +74,8 @@ To reduce the possibilities, I add a regex to the query, as a brute force attack
 ##### result
 So, `index=* sourcetype="stream:http" | regex (passw)` and a drill down on _src-ip_ reveals that Splunk finds 1235 entries (93.62% of all entries) starting from 23.22.63.114. My guess? Correct answer....
 ![Solution q108](/images/splunk/108_1.png)
-#### 109-What is the name of the executable uploaded by Po1s0n1vy?
+
+<!-- #### 109-What is the name of the executable uploaded by Po1s0n1vy?
 ##### thoughts
 ##### approach
 ##### result
@@ -90,7 +94,8 @@ So, `index=* sourcetype="stream:http" | regex (passw)` and a drill down on _src-
 #### 113-One of Po1s0n1vy's staged domains has some disjointed "unique" whois information. Concatenate the two codes together and submit as a single answer.
 ##### thoughts
 ##### approach
-##### result
+##### result -->
+
 #### <a name="114"></a>114-What was the first brute force password used?
 ##### thoughts
 Hmmm. Brute force a password? So there will be pretty sure a lot of http traffic, most likely POST-requests. All I have to do is to narrow down the data to the specific fields :-)
@@ -100,26 +105,50 @@ Hmmm. Brute force a password? So there will be pretty sure a lot of http traffic
 `index=* source="stream:http" http_method=POST src_ip="23.22.63.114" | sort -_time desc` leads to _12345678_
 ![Solution q114](/images/splunk/114_1.png)
 
-#### 115-One of the passwords in the brute force attack is James Brodsky's favorite Coldplay song. Hint: we are looking for a six character word on this one. Which is it?
+
+#### <a name="115"></a>115-One of the passwords in the brute force attack is James Brodsky's favorite Coldplay song. Hint: we are looking for a six character word on this one. Which is it?
 ##### thoughts
+As in question [_114__](#114) explained, I'm able to filter the data to the requests which contain the different passwords of the brute force attack. So lets see if I can extract the pure passwords and compare them with the given criteria about coldplay....
 ##### approach
+A little research on the Internet showed me, that I can with `| table form_data` extract only the form-data out of a result-set, so my first search is `index=* source="stream:http" http_method=POST src_ip="23.22.63.114" | table form_data`. Now, I have to sort out all results which don't contain six characters, this sounds very strong like _regex_, so a little more research on the net is needed. Tweaking a little bit the queries and some regex-repetition with [https://regexr.com/] led me to the next shot `index=* source="stream:http" http_method=POST src_ip="23.22.63.114"  | table form_data |  rex field=form_data "passwd=(?<passwd>\w+)"`. No, I have a seperate, temporary field _passwd_, but still much to many canditates....
+While `rex` extract data out of fields, `regex` is used to filter data....so `index=* source="stream:http" http_method=POST src_ip="23.22.63.114"  | table form_data |  rex field=form_data "passwd=(?<passwd>\w+)" | table passwd | regex passwd = \w{6}` extractded a list of 343 candidates. As I'm not a coldplay-fan, still to many options....hmmmm....for the moment, I'm stuck with this one :-(
 ##### result
+
+
 #### 116-What was the correct password for admin access to the content management system running "imreallynotbatman.com"?
 ##### thoughts
+Huh, this one should be to solve for me too. In my opinion, there could be to ways to find the correct answer. 
+  * count how many times a password was transmitted -> the correct password will at least be sent 2 times, one time to detect, one time to login.
+  * analyze the 2-way webtraffic, the request and response of the succesfull login should be findable.
+
 ##### approach
+lets first stick to way one. In question [_115_](#115), I examined the passwordlist allready, so I can continue with that part of the queries. But unfortunately, `index=* source="stream:http" http_method=POST src_ip="23.22.63.114"  | table form_data |  rex field=form_data "passwd=(?<passwd>\w+)" | table passwd | stats count by passwd | sort - count` didn't show any double passwords. 
+Hmmm...STOP....May be that the login was not made with the same IP as the brute force attack? 
 ##### result
+So, open the query to `index=* source="stream:http" http_method=POST | table form_data |  rex field=form_data "passwd=(?<passwd>\w+)" | table passwd | stats count by passwd | sort - count` shows, that _batman_ was found 2 times.
+![Solution q116](/images/splunk/116_1.png)
+
 #### 117-What was the average password length used in the password brute forcing attempt?
 ##### thoughts
+Also this one is pretty easy once I extracted allready the passwords used for the brute force attack. Probably all I have to do is do a little research on how to use statistical functions in Splunk.
 ##### approach
+As a first step, I start with `index=* source="stream:http" http_method=POST src_ip="23.22.63.114"  | table form_data |  rex field=form_data "passwd=(?<passwd>\w+)"  | eval laenge = len(passwd)| table passwd laenge` which shows me to every password its length.
+![Solution q117_1](/images/splunk/117_1.png)
+After that, I agregate the result with `| stats avg(laenge) as durchschnitt` which leads me to the following result:
 ##### result
-#### 118-How many seconds elapsed between the time the brute force password scan identified the correct password and the compromised login?
+_6.174757281553398_ 
+![Solution q117_2](/images/splunk/117_2.png)
+
+
+<!-- #### 118-How many seconds elapsed between the time the brute force password scan identified the correct password and the compromised login?
 ##### thoughts
 ##### approach
 ##### result
 #### 119-How many unique passwords were attempted in the brute force attempt?
 ##### thoughts
 ##### approach
-##### result
+##### result -->
+
 #### 200-What was the most likely IP address of we8105desk on 24AUG2016?
 ##### thoughts
 This is probabaly also one of the easier questions. As there is a known hostname and a known date, the search should be easy to define. 
@@ -129,6 +158,6 @@ I think, the best approach will be to filter the data with this two criteria. To
 The IP was most likely _192.168.250.100_
 ![Solution q200](/images/splunk/200_1.png)
 
-##### thoughts
+<!-- ##### thoughts
 ##### approach
-##### result
+##### result -->
