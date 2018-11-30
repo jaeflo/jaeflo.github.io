@@ -115,7 +115,7 @@ While `rex` extract data out of fields, `regex` is used to filter data....so `in
 ##### result
 
 
-#### 116-What was the correct password for admin access to the content management system running "imreallynotbatman.com"?
+#### <a name="116"></a>116-What was the correct password for admin access to the content management system running "imreallynotbatman.com"?
 ##### thoughts
 Huh, this one should be to solve for me too. In my opinion, there could be to ways to find the correct answer. 
   * count how many times a password was transmitted -> the correct password will at least be sent 2 times, one time to detect, one time to login.
@@ -140,14 +140,23 @@ _6.174757281553398_
 ![Solution q117_2](/images/splunk/117_2.png)
 
 
-<!-- #### 118-How many seconds elapsed between the time the brute force password scan identified the correct password and the compromised login?
+#### 118-How many seconds elapsed between the time the brute force password scan identified the correct password and the compromised login?
 ##### thoughts
+Well, as I'm able to filter out the correct admin-password ([_116_](#116)), I should also be able to follow the two events when they were sent to the server... 
 ##### approach
+with `index=* source="stream:http" http_method=POST src_ip="23.22.63.114" |  rex field=form_data "passwd=(?<passwd>\w+)" | table _time passwd`, I get a first shot with all passwords. Now, I add a regex to the query and open the search for all hosts: `index=* source="stream:http" http_method=POST  |  rex field=form_data "passwd=(?<passwd>\w+)" | table _time passwd | regex passwd = batman`. Now, I could Splunk let calculate the time-delta, or I just calculate it by hand....
 ##### result
+_about 92 secs_
+![Solution q117_2](/images/splunk/117_2.png)
+
 #### 119-How many unique passwords were attempted in the brute force attempt?
 ##### thoughts
+Oh la la, not much to solve here ;-)
 ##### approach
-##### result -->
+In question [_115_](#115), I allready examined the complete passwordlist. In question [_116_](#116), I inspected the list to find double entries. All I have to do is count how many results are found with `index=* source="stream:http" http_method=POST src_ip="23.22.63.114"  | table form_data |  rex field=form_data "passwd=(?<passwd>\w+)" | table passwd` to recieve the unique password-requests.
+##### result
+_412_
+![Solution q119](/images/splunk/119_1.png)
 
 #### 200-What was the most likely IP address of we8105desk on 24AUG2016?
 ##### thoughts
