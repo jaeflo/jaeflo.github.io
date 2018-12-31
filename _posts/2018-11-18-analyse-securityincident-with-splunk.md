@@ -167,6 +167,12 @@ I think, the best approach will be to filter the data with this two criteria. To
 The IP was most likely _192.168.250.100_
 ![Solution q200](/images/splunk/200_1.png)
 
-<!-- ##### thoughts
+
+#### 201-Amongst the Suricata signatures that detected the Cerber malware; which one alerted the fewest number of times? 
+##### thoughts
+Probably, this will be easy to answer to once I understand the signature of suricata. A quick research on the I-net shows up that Suricata is an Open Source Intrusion Detection System.
 ##### approach
-##### result -->
+As a first step, I try to reduce the data to those which have suricata as source, but `index=* sourcetype=suricata` shows still way to much information, so I need to be more precise about. Because I know, that I have to look out for the Cerber-malware, I can add  `alert.signature=*cerber*` to the query, which, in fact, reduces the dataset to 5 results. Adding the signature to the shown fields, I can easily count by hand the signatures.
+##### result
+So, as shown below, the signature with the id _2816763_ was listed only once.
+![Solution q201](/images/splunk/201_1.png)
