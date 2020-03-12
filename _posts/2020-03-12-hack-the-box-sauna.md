@@ -34,13 +34,21 @@ and `GetNPUsers.py` from `impacket` gave me a ticket for the user **fsmith**
 
 ![asreproast](/images/sauna/asreproast.png)
 
-This ticket was crackable with `hashcat` and the dictionary `rockyou.txt`
+This ticket was crackable with a dictionary-attack and `hashcat`. I took `rockyou.txt` as wordlist. A few seconds later I was in possesion of the credentials **fsmith:Thestroke23**
+
 ![hashcat](/images/sauna/hashcat.png)
 
-
 ### Access with winrm
+A quick attempt to access smb with the credentials didn't lead to valuable information. I deed a deeper inspect with `nmap -p 5985 10.10.10.175` to check, if maybe `winrm` is accessible. It is!
+So the next step was to install `evil-winrm`, a neat Ruby-Application, which made it possible to get a shell on the target!
+
+![winrm](/images/sauna/winrm.png)
 
 ### User-Flag
+I could find the user-flag on desktop and owned my first user on HTB :-)
+
+![userflag](/images/sauna/userflag.png)
+
 
 ### Enumerate System
 
