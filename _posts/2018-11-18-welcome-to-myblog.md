@@ -11,4 +11,3 @@ Normally, I really don't like to publish data on the Internet. This has a series
 #### So why the sudden change in mind?
 
 As part of my [further training](https://www.teko.ch), I'm obliged to report and present some result of an exercise in form of a blog. So, therefore, it seems to me that I should open my mind an join the community off __bloggers__ ;-)
-
