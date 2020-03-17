@@ -84,9 +84,13 @@ In fact, `PrivescCheck` revealed the complete credentials for the user **svc_loa
 
 # Privilege escalation
 I struggled quiet a bit to root the box. Tool after tool, atempt after atempt, but I allways ended up with loose ends :-/
+
 Finally, `secretsdump.py` from impacket did a great job and delivered me some ntlm-hashes....
+
 ![secretsdump](/images/sauna/secretsdump.png)
 
-All I needed to do now was to find a tool for executing a "pass the hash-attack". `wmiexec.py` from impacket solved this for me in seconds....**Boom**, I rooted my first box on Hack The Box!
+All I needed to do now was to find a tool for executing a "pass the hash-attack". `wmiexec.py` from impacket solved this for me in seconds....
+
+**Boom**, I rooted my first box on Hack The Box!
 
 ![root](/images/sauna/root.png)
