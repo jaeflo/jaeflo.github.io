@@ -94,3 +94,5 @@ All I needed to do now was to find a tool for executing a "pass the hash-attack"
 **Boom**, I rooted my first box on Hack The Box!
 
 ![root](/images/sauna/root.png)
+
+Thanks a lot to [Hack The Box](https://www.hackthebox.eu/) for providing this box!
