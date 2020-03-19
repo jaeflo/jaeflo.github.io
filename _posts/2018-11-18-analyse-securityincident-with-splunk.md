@@ -1,7 +1,7 @@
 ---
 title:  "analyze a security incident with splunk -> write up"
 date:   2018-11-18
-categories: [CTF]
+categories: [ctf]
 tags: [TEKO, writeups, ctf]
 ---
 #### Introduction
