@@ -2,7 +2,7 @@
 title:  "analyze a security incident with splunk -> write up"
 date:   2018-11-18
 categories: [CTF]
-tags: [TEKO]
+tags: [TEKO, writeups, cf]
 ---
 #### Introduction
 As part of my [further training](https://www.teko.ch), I have to analyze a security incident with splunk. Therefore, I was given access to a Splunk-enviroment and received a list with a couple of questions like `What was the first brute force password used?`. I didn't receive any further information. 
