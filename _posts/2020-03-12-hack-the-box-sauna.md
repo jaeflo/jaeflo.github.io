@@ -1,8 +1,8 @@
 ---
 title:  "Hack The Box - Sauna"
 date:   2020-03-12
-categories: [ctfs]
-tags: [linux, Active Directory, Kali, Pentest]
+categories: [ctf]
+tags: [linux, Active Directory, Kali, Pentest, writeups, ctf]
 ---
 My write-up / walktrough for Sauna on Hack The Box.
 
