@@ -6,14 +6,14 @@ tags: [linux, Active Directory, Kali, Pentest, writeups, ctf]
 ---
 My write-up / walktrough for Forest on Hack The Box. 
 
-# Quick summary
+## Quick summary
 Today, Forest got retired and I'm allowed to publish my write-up. Forest is my second box on HTB, so still pleeeeenty of new things to learn for me ;-)
 
 I added the box to `/etc/hosts` as `forest.htb` with it's ip `10.10.10.161`
 
 ![forest](/images/forest/forest.png)
 
-# Enumeration
+## Enumeration
 I started with 
 `nmap -sV -p 1-10000 -T5 forest.htb` and revealed plenty of open ports. Well, as the box-name allready mentioned, there is an Active Directory running on it.
 
@@ -55,7 +55,7 @@ user:[mark] rid:[0x47f]
 user:[santi] rid:[0x480]
 ```
 
-# ASRepRoast
+## ASRepRoast
 So let's look if one ore more users don't need preauthentication. I saved just the usernames in a textfile `user.txt`
 
 ![usernames](/images/forest/usernames.png)
@@ -68,25 +68,25 @@ Yeah! There is the user `svc-alfresco` where I could gather a ticket of.
 
 `GetNPUsers.py` can create a well formated file right away by passing the parameter `-format hashcat -outputfile userhash.txt`
 
-# crack the hash
+## crack the hash
 
 Done so, I could afterwards crack the hash with `hashcat -m18200 --force userhash.txt  /usr/share/wordlists/rockyou.txt` which gives me the credentials `svc-alfresco:s3rvice`
 
 ![hashcat](/images/forest/hashcat.png)
 
-# Own the user...
+## Own the user...
 
 this credentials, I could use to establish a connection with winrm (`evil-winrm -i forest.htb -u svc-alfresco -p s3rvice
 `) and grab the user-flag `e5e4e47ae7022664cda6eb013fb0d9ed`.
 
 ![userflag](/images/forest/userflag.png)
 
-# Privilege escalation
+## Privilege escalation
 
 Tried with `winPEASany.exe` to escalate privilegies. The command
 `evil-winrm -i forest.htb -u svc-alfresco -p s3rvice -e .` , `menue` and `Invoke-Binary winPEASany.exe` started the process to scan forest.htb.local, but apart of some missconfiguration (disabled firewall and so on) this was a loose end to me.
 
-## Bloodhound
+### Bloodhound
 I then took a deeper look into the Active Directory by gathering and displaying data for `Bloodhound` 
 
 ![bloodhound](/images/forest/bloodhound.png)
@@ -95,7 +95,7 @@ Done so, I noticed that `svc-alfresco` has the right to create user in the Activ
 
 ![accoutoperator](/images/forest/accountoperator.png)
 
-## User creation
+### User creation
 To do that, I reconnected with `evil-winrm -i forest.htb -u svc-alfresco -p s3rvice` to the victim and executed there the following commands:
 ``` cmd
 net user fab asdfasdf81 /ADD /DOMAIN
@@ -103,7 +103,7 @@ net group "Exchange Trusted Subsystem" fab /add
 net group "Exchange Windows Permissions" fab /add 
 ```
 
-## Dump the secrets
+### Dump the secrets
 Now, I could try to escalate the privilegies of the new user `fab` so that I afterwards could start a `dcsync-attack`.Therefore, I used the tools `secretsdump.py` and `ntlmrelayx.py`, both from `impacket`.
 
 First, I had to start `sudo python3 /usr/local/bin/ntlmrelayx.py -t ldap://10.10.10.161 --escalate-user fab` and then authenticate the user by inserting the credentials on the local server. 
@@ -115,7 +115,7 @@ This started allready the necessary privilege escalation, so that I afterwards c
 
 ![secretdump](/images/forest/secretdump.png)
 
-# Root the box
+## Root the box
 
 All I had to do now, was to execute a `pass the hash attack` which could be done again with `evil-winrm`:
 
@@ -125,7 +125,7 @@ and then grab the root-flag `f048153f202bbb2f82622b04d79129cc` on admins desktop
 
 ![root](/images/forest/root.png)
 
-# Conclusion 
+## Conclusion 
 - still a lot to learn about Kerberos and Active Directory
 - not sure, how *noisy* my attacks were?
 - should once (or more) dig into the scripts I'm using, for better understandig of attack and defense
