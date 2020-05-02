@@ -24,7 +24,7 @@ faebu@kali:showmount -e remote.htb
 faebu@kali:mkdir /tmp/infosec
 faebu@kali:sudo mount -t nfs remote.htb:/site_backups /tmp/infosec
 ```
-By enumerating the share on `/tmp/infosec`, I realized that the share contained a backup of a webseite, run by the `Umbraco-CMS`. I was not able to load the database on `App_Data/Umbraco.sdf` with a tool, but I could grab a hash by inspecting the file manually with an editor.
+By enumerating the content on `/tmp/infosec`, I realized that the share contained a backup of a webseite, run by the `Umbraco-CMS`. I was not able to load the database on `App_Data/Umbraco.sdf` with a tool, but I could grab a hash by inspecting the file manually with an editor.
 `admin@htb.local b8be16afba8c314ad33d812f22a04991b90e2aaa`
 
 ## crack the hash
@@ -36,7 +36,7 @@ I tried to crack the hash online and found instantly a match. `b8be16afba8c314ad
 With this credentials, I was able to log in the cms.
 ![logincms](/images/remote/loginCMS.png)
 
-Now, the next step was to lookout for a possibility to take advantage of the gathered credentials, so I checked if there are some `remote code execution vulnerabilities` with `Umbraco`. Indead, I found an interesting proove of concept on [www.exploit-db.com](https://www.exploit-db.com/exploits/46153), which I had to modify as follows:
+Now, the next step was to lookout for a possibility to take advantage of the gathered credentials, so I checked if there are some `remote code execution vulnerabilities` with `Umbraco`. Indead, I found an interesting proof of concept on [www.exploit-db.com](https://www.exploit-db.com/exploits/46153), which I had to modify as follows:
 
 ```python
 # Exploit Title: Umbraco CMS - Remote Code Execution by authenticated administrators
@@ -161,4 +161,5 @@ As the Service last just for a couple of seconds, we have to be quick to gather 
 
 ## Conclusion 
 Great box and a lot of fun. I had a pretty hard time to get to user, got stuck plenty of times with loose ends, but once I got user-access, I got root pretty fast as well. Unfortunately, the box is called `Remote` and I noticed well the `Teamviewer-Service`, but to be honest, I had no clue how to proceed on it. So I would say, I got the root flag, but not the intended way :-/
-**Thanks** and respect to [Hack The Box](https://www.hackthebox.eu/) for providing this great box
+
+**Thanks** and respect to [Hack The Box](https://www.hackthebox.eu/) for providing this great box.
