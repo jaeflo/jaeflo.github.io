@@ -2,7 +2,7 @@
 title:  "Hack The Box - Remote"
 date:   2020-03-21
 categories: [ctf]
-tags: [linux, Active Directory, Kali, Pentest, writeups, ctf, rdp, Remote-Desktop]
+tags: [linux, Kali, Pentest, writeups, ctf, rdp, Remote-Desktop]
 ---
 My write-up / walktrough for Remote on Hack The Box. 
 
