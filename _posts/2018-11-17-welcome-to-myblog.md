@@ -1,6 +1,6 @@
 ---
 title:  "Welcome to my blog!"
-date:   2018-11-18
+date:   2018-11-17
 categories: [general]
 tags: [welcome]
 ---
