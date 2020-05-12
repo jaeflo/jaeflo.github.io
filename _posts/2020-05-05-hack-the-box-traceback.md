@@ -68,3 +68,5 @@ fd620301d0c1f58876d350a004f31933
 ![ssh](/images/traceback/ssh_shell.png)
 
 e9bece3c49a50bf0fb819ee50285085f
+
+![root](/images/traceback/rootflag.png)
