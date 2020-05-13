@@ -27,7 +27,7 @@ A quick search on Google led me to <https://github.com/Xh4H/Web-Shells> where th
 
 ## Foothold
 
-I had to try a couple of them, and finally, `smevk.php` did the thing. The creds for the webshell were still default, so I could log in with `admin:admin`.
+I had to try a couple of these shells, and finally, `smevk.php` worked. The creds for the webshell were still default, so I could log in with `admin:admin`.
 
 ![webshell](/images/traceback/webshell.png)
 
