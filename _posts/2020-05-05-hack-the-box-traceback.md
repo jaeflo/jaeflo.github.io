@@ -101,3 +101,6 @@ So all I had to do now were the following three steps
 ![root](/images/traceback/rootflag.png)
 
 ## Conclusion
+I enjoyed this box very much, as it was my first box in which I didn't need any hints from other CTF-players! To get to user was really straigth forward, I only once stucked when I had to find a way for root. I lost quite a bit of time then, trying to escalate privilege instead of taking a look what was allways allready there.
+
+Thanks and respect to [Xh4H](https://www.hackthebox.eu/home/users/profile/21439) and [Hack The Box](https://www.hackthebox.eu) for providing this great box.
