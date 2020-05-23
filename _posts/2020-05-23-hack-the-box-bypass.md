@@ -6,5 +6,4 @@ tags: [reverse-engineering, .net, Challenge, writeups, ctf]
 ---
 My write-up / walktrough for the Challenge Bypass on Hack The Box.
 
-As long as the challenge isn't retired on HTB, you need the flag to encrypt the following pdf!
-
+[WriteUp Bypas as PDF](https://www.dropbox.com/s/8f9a2oqba12ov9n/2020-05-23-hack-the-box-bypass.pdf?dl=1)
