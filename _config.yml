@@ -3,7 +3,7 @@ title: F&auml;bus Blog
 description: 'code-snippets, CTFs and some other student &amp; teacher stuff'
 url: 'https://jaeflo.github.io'
 baseurl: ''
-# google_analytics: 'UA-XXXXXX-X'
+google_analytics: 'UA-168090957-1'
 # disqus_shortname: 'your-disqus-name'
 
 author:
