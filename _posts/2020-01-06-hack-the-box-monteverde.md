@@ -33,4 +33,8 @@ so getting and showing this file, I got `4n0therD4y@n0th3r$`
 ![azure](/images/monteverde/azure_creds.png)
 
 
-AAD_987d7f2f57d2:4n0therD4y@n0th3r$
+mhope:4n0therD4y@n0th3r$
+
+evil-winrm -i monteverde.htb -u mhope -p 4n0therD4y@n0th3r$
+
+![userflag](/images/monteverde/userflag.png)
