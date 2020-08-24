@@ -39,4 +39,5 @@ kramdown:
 plugins: 
   - jekyll-paginate
   - jekyll-seo-tag
+  - jemoji
 exclude: ['README.md', 'Gemfile', 'Gemfile.lock', 'screenshot.png']
