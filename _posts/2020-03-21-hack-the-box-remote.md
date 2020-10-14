@@ -2,15 +2,6 @@
 title:  "Hack The Box - Remote"
 date:   2020-03-21
 categories: [ctf]
-<<<<<<< HEAD
-tags: [linux, Kali, Pentest, writeups, ctf, rdp, Remote-Desktop]
----
-My write-up / walktrough for Remote on Hack The Box. 
-
-As long as the machine isn't retired on HTB, you need the root-flag to encrypt the following pdf!
-
-[WriteUp Remote as PDF](https://www.dropbox.com/s/nef988gu7xur46x/2020-03-21-hack-the-box-remote.pdf?dl=1)
-=======
 tags: [linux, Active Directory, Kali, Pentest, writeups, ctf, rdp, Remote-Desktop]
 ---
 My write-up / walktrough for Remote on Hack The Box. 
@@ -172,4 +163,3 @@ As the Service last just for a couple of seconds, we have to be quick to gather 
 Great box and a lot of fun. I had a pretty hard time to get to user, got stuck plenty of times with loose ends, but once I got user-access, I got root pretty fast as well. Unfortunately, the box is called `Remote` and I noticed well the `Teamviewer-Service`, but to be honest, I had no clue how to proceed on it. So I would say, I got the root flag, but not the intended way :-/
 
 **Thanks** and respect to [Hack The Box](https://www.hackthebox.eu/) for providing this great box.
->>>>>>> remote
