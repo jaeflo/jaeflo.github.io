@@ -537,7 +537,6 @@ if __name__ == "__main__":
 * `tmux ls` for listing actual sessions
 * `tmux attach -t 0` to connect to the session
 * done :-)
-* 
 
 ### Linux Primer
 just printed out all the history which led me to the solution
