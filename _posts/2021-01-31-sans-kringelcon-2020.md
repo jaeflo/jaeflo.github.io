@@ -4,7 +4,7 @@ date:   2021-01-31
 categories: [ctf]
 tags: [ctf, sans, kringelcon]
 ---
-# Introduction
+## Introduction
 Like every year, SANS provided a hacking challenge around christmas, the famous kringelcon. I really love this challenge and spent quite a bit of my spare time on it. The actual challenge can be found on https://2020.kringlecon.com/invite and as far as I know, it will stay online for a while, even when the offical challenge is closed and solutions can be disclosed now.
 
 Altough I didn't finish the full challenge, I decided to push my solutions to my blog anyway. Well, this blogpost is less a write-up, its more just a bunch of steps to describe how I walked trough the solved challenges.
@@ -13,7 +13,7 @@ Huge respect and thanks to the people who designed, provided and maintained the 
 
 ![Logo](/images/kringelcon/intro.png)
 
-# Objective 1 Uncover Santas Gift List
+## Objective 1 Uncover Santas Gift List
 * download `Santas Bilboard`right beside the initial cabine
 * open it in https://www.photopea.com/
 * snap the twirled section with the lasso
@@ -22,7 +22,7 @@ Huge respect and thanks to the people who designed, provided and maintained the 
 
 
 
-# Objective 2 Investigate S3-Bucket
+## Objective 2 Investigate S3-Bucket
 * add wrapper3000 to the wordlist
 * check with `./bucket_finder.rb wordlist` the buckets, wrapper3000 ist public
 * download its content with `./bucket_finder.rb --download wordlist`
@@ -38,7 +38,7 @@ Huge respect and thanks to the people who designed, provided and maintained the 
 
 
 
-# Objective 3 Point-of-Sale Password Recovery
+## Objective 3 Point-of-Sale Password Recovery
 * Download the exe for local inspection
 * Extract the exe with https://extract.me/de/, got a packed app-64.7z in the exe
 * extracted app-64.7z again with https://extract.me/de/. Got a bunch of files in it
@@ -47,16 +47,17 @@ Huge respect and thanks to the people who designed, provided and maintained the 
 
 
 
-# Objective 4 Operate the Santavator
+## Objective 4 Operate the Santavator
 * no clue what I have done. played a bit around with the colleccted stuff, and bam, found :-)
 * the goal is to split the electron in a way that all 3 connectors are electrified
   
 
 
-# Objective 5 Open HID Lock
+## Objective 5 Open HID Lock
 * we need the proxmark-reader
 * Shyni upatree is carrying a card
 * with `lf hid read` can we read the card
+
 ```bash
   [magicdust] pm3 --> lf hid read
 
@@ -77,9 +78,9 @@ Huge respect and thanks to the people who designed, provided and maintained the 
 
 
 
-# Objective 6 Splunk Challenge
+## Objective 6 Splunk Challenge
 
-## Training Questions
+### Training Questions
 * 13
 * t1059.003-main t1059.003-win
 * HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Cryptography
@@ -88,14 +89,14 @@ Huge respect and thanks to the people who designed, provided and maintained the 
 * quser
 * 55FCEEBB21270D9249E86F4B9DC7AA60
 
-## Challenge Question
+### Challenge Question
 * 7FXjP1lyfKbyDK/MChyf36h7
 * the hint is `It's encrypted with an old algorithm that uses a key. We don't care about RFC 7465 up here! I leave it to the elves to determine which one!`. This points to RC4
 * The passphrase is in the video `Stay Frosty`
 * solved with Cyberchef -> The Lollipop Guild
 
 
-# Objective 7 Solve the Sleigh's CAN-D-BUS
+## Objective 7 Solve the Sleigh's CAN-D-BUS
 * List all ID's and observe changes while playing with the controls 
 
 ```
@@ -119,7 +120,7 @@ Huge respect and thanks to the people who designed, provided and maintained the 
 
 
 
-# Objective 8 Broken Tag Generator
+## Objective 8 Broken Tag Generator
 There are multiple ways to achieve the challenge. RCE would be a nice one, the following is just the easiest for lazy guys ;-)
 * https://tag-generator.kringlecastle.com/hh to provoce the error-output
 
@@ -128,7 +129,8 @@ Something went wrong!
 Error in /app/lib/app.rb: Route not found
 ```
 * curl https://tag-generator.kringlecastle.com/image?id=../app/lib/app.rb will fetch the sourcecode
-```ruby
+
+```python
 # encoding: ASCII-8BIT
 
 TMP_FOLDER = '/tmp'
@@ -350,7 +352,7 @@ for pid in range(10000):
         break
 ```
 
-# O9 ARP Shenanigans
+## O9 ARP Shenanigans
 ### Hints
 
 `Jack Frost must have gotten malware on our host at 10.6.6.35 because we can no longer access it. Try sniffing the eth0 interface using tcpdump -nni eth0 to see if you can view any traffic from that host.`
@@ -528,16 +530,16 @@ if __name__ == "__main__":
 * this leads to the info, that `Tanta Kringle` recused herself from the vote.
 
 
-# Terminal Chalenges
+## Terminal Chalenges
 
-## Unescape tmux
+### Unescape tmux
 * connect to terminal
 * `tmux ls` for listing actual sessions
 * `tmux attach -t 0` to connect to the session
 * done :-)
 * 
 
-## Linux Primer
+### Linux Primer
 just printed out all the history which led me to the solution
 
 ```bash
@@ -574,7 +576,7 @@ just printed out all the history which led me to the solution
 ```
 
 
-## Sort o matic
+### Sort o matic
 * Matches at least one digit
   
 `\d+`
@@ -609,7 +611,7 @@ just printed out all the history which led me to the solution
 
 
 
-## Kringle Kiosk
+### Kringle Kiosk
 * Option 4 is vulnerable to command/code injection. To achieve this, symply enter  `; /bin/bash ;` Following code gets broken by the injection
 
 ```bash
@@ -723,7 +725,7 @@ done
 ```
 
 
-## Speaker Open Door/Lights/VendingMachines
+### Speaker Open Door/Lights/VendingMachines
 ### Door
 * extract the human readable strings with `strings ./door`
 * found the line `Be sure to finish the challenge in prod: And don't forget, the password is "Op3nTheD00r"`
@@ -795,7 +797,7 @@ if __name__ == "__main__":
 
 ```
 
-## 33.6 Kbps
+### 33.6 Kbps
 * check the javascript-code `dialup.js`
 * the thing is, there has to be entered `7568347` and afterwards the right combination of sounds to build the correct secret
 * the combination can be guessed by reading the code for example the sequence following after line 131:
@@ -826,7 +828,7 @@ if __name__ == "__main__":
   }
 ```
 
-## Redis
+### Redis
 * there can be interacted with a redis-db via curl and a maintenance-page.
 * the goal is to access/read/download index.php
 * proceeded as in https://book.hacktricks.xyz/pentesting/6379-pentesting-redis described
@@ -847,13 +849,13 @@ if __name__ == "__main__":
 
 ```
 
-## Can-Bus
+### Can-Bus
 * `cat candump.log | grep -v 244`to filter to the relevant lines
 * `./runtoanswer 122520`
 * baamm, that's it
 
 
-## Scappy Prepper
+### Scappy Prepper
 * task.submit('start')                       
 * task.submit(send)                          
 * task.submit(sniff)                         
